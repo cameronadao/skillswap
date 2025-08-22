@@ -12,15 +12,10 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
-
 // Importer les routes
 const authRoutes = require('./routes/authRoutes');
 const offerRoutes = require('./routes/offerRoutes');
 const userRoutes = require('./routes/userRoutes');
-const exchangeRoutes = require('./routes/exchangeRoutes');
-const messageRoutes = require('./routes/messageRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
 
 // Importer les middlewares
 const errorHandler = require('./middleware/errorHandler');
@@ -66,10 +61,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/auth', authRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/exchanges', exchangeRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/payments', paymentRoutes);
 
 // Route de santé
 app.get('/api/health', (req, res) => {
@@ -80,15 +71,33 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Route racine
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Bienvenue sur l\'API SkillSwap',
+    status: 'Opérationnel',
+    endpoints: {
+      auth: '/api/auth',
+      offers: '/api/offers',
+      users: '/api/users'
+    }
+  });
+});
+
 // Gérer les erreurs 404
 app.use(notFound);
 
 // Gérer les erreurs
 app.use(errorHandler);
 
-// Configuration Socket.io
-const socketService = require('./services/socketService');
-socketService(io);
+// Configuration Socket.io simplifiée
+io.on('connection', (socket) => {
+  console.log('Nouvelle connexion socket:', socket.id);
+  
+  socket.on('disconnect', () => {
+    console.log('Déconnexion socket:', socket.id);
+  });
+});
 
 // Connexion à la base de données
 const connectDB = async () => {

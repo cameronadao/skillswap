@@ -15,6 +15,51 @@ exports.createOffer = async (req, res) => {
 
 exports.getAllOffers = async (req, res) => {
   try {
+    // Logique pour récupérer toutes les offres
+    res.status(200).json({ message: 'Liste des offres' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getOfferById = async (req, res) => {
+  try {
+    // Logique pour récupérer une offre par ID
+    res.status(200).json({ message: 'Détails de l\'offre' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.createOffer = async (req, res) => {
+  try {
+    // Logique pour créer une offre
+    res.status(201).json({ message: 'Offre créée avec succès' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.updateOffer = async (req, res) => {
+  try {
+    // Logique pour mettre à jour une offre
+    res.status(200).json({ message: 'Offre mise à jour avec succès' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.deleteOffer = async (req, res) => {
+  try {
+    // Logique pour supprimer une offre
+    res.status(200).json({ message: 'Offre supprimée avec succès' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getAllOffers = async (req, res) => {
+  try {
     const offers = await Offer.find().populate('user', 'username');
     res.json(offers);
   } catch (err) {

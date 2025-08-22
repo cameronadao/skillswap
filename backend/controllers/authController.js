@@ -6,6 +6,25 @@ const sendEmail = require('../services/emailService');
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
+
+exports.register = async (req, res) => {
+  try {
+    // Logique d'inscription
+    res.status(201).json({ message: 'Utilisateur créé avec succès' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    // Logique de connexion
+    res.status(200).json({ message: 'Connexion réussie' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 exports.register = async (req, res, next) => {
   const { username, email, password, profile } = req.body;
 
