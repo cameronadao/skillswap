@@ -9,6 +9,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Ajoutez ce code après les middlewares
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Bienvenue sur l\'API SkillSwap',
+    status: 'Opérationnel',
+    endpoints: {
+      auth: '/api/auth',
+      offers: '/api/offers',
+      users: '/api/users'
+    }
+  });
+});
+
 // Import des routes
 const authRoutes = require('./routes/authRoutes');
 const offerRoutes = require('./routes/offerRoutes');
