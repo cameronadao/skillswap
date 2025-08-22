@@ -1,5 +1,7 @@
 import React from 'react';
 import OffersList from './components/OffersList';
+import OfferForm from './components/OfferForm';
+
 import './App.css';
 
 function App() {
@@ -11,6 +13,7 @@ function App() {
         </header>
         <main>
           <OffersList />
+            <OfferForm />
         </main>
       </div>
     );
