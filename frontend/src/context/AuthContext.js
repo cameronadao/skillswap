@@ -1,3 +1,4 @@
+// frontend/src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 
@@ -19,8 +20,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
+      // Vérifier si le token est valide
       api.get('/api/auth/me')
-        .then(response => setUser(response.data))
+        .then(response => {
+          setUser(response.data);
+        })
         .catch(() => {
           localStorage.removeItem('token');
         })
@@ -36,8 +40,11 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/api/auth/login', credentials);
       const { token } = response.data;
       localStorage.setItem('token', token);
+      
+      // Récupérer les informations utilisateur
       const userResponse = await api.get('/api/auth/me');
       setUser(userResponse.data);
+      
       return { success: true };
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -49,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       await api.post('/api/auth/register', userData);
+      // Connecter l'utilisateur après l'inscription
       return await login({ email: userData.email, password: userData.password });
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
