@@ -17,9 +17,9 @@ router.post('/', auth, async (req, res) => {
   });
 
   const express = require('express');
-  const router = express.Router(); // Cette ligne manquait !
+  const router = express.Router(); // 2. Initialiser le routeur AVANT de l'utiliser
   const auth = require('../middleware/auth');
-const offerController = require('../controllers/offerController');
+  const offerController = require('../controllers/offerController');
 
 
   
@@ -33,10 +33,10 @@ const offerController = require('../controllers/offerController');
   });
 
   // Vos routes existantes
-router.post('/', auth, offerController.createOffer);
-router.get('/', offerController.getAllOffers);
-router.get('/:id', offerController.getOfferById);
-router.put('/:id', auth, offerController.updateOffer);
-router.delete('/:id', auth, offerController.deleteOffer);
+  router.post('/', auth, offerController.createOffer);
+  router.get('/', offerController.getAllOffers);
+  router.get('/:id', offerController.getOfferById);
+  router.put('/:id', auth, offerController.updateOffer);
+  router.delete('/:id', auth, offerController.deleteOffer);
 
-module.exports = router; // Assurez-vous d'exporter le routeur
+  module.exports = router;
