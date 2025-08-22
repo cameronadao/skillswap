@@ -15,6 +15,13 @@ router.post('/', auth, async (req, res) => {
       res.status(500).send('Server error');
     }
   });
+
+  const express = require('express');
+  const router = express.Router(); // Cette ligne manquait !
+  const auth = require('../middleware/auth');
+const offerController = require('../controllers/offerController');
+
+
   
   router.put('/:id', auth, async (req, res) => {
     // Vérifier que l'utilisateur est bien le propriétaire
@@ -24,3 +31,12 @@ router.post('/', auth, async (req, res) => {
     }
     // Mettre à jour l'offre...
   });
+
+  // Vos routes existantes
+router.post('/', auth, offerController.createOffer);
+router.get('/', offerController.getAllOffers);
+router.get('/:id', offerController.getOfferById);
+router.put('/:id', auth, offerController.updateOffer);
+router.delete('/:id', auth, offerController.deleteOffer);
+
+module.exports = router; // Assurez-vous d'exporter le routeur
