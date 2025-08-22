@@ -12,6 +12,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
+
 // Importer les routes
 const authRoutes = require('./routes/authRoutes');
 const offerRoutes = require('./routes/offerRoutes');
@@ -20,6 +21,8 @@ const exchangeRoutes = require('./routes/exchangeRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
 // Importer les middlewares
 const errorHandler = require('./middleware/errorHandler');
