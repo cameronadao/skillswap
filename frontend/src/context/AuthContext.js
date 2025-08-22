@@ -1,54 +1,79 @@
-import React, { createContext, useContext, useReducer } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case 'LOGIN_SUCCESS':
-      return { ...state, token: action.payload, isAuthenticated: true };
-    case 'LOGOUT':
-      return { ...state, token: null, isAuthenticated: false };
-    default:
-      return state;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
+  return context;
 };
 
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, {
-    token: localStorage.getItem('token'),
-    isAuthenticated: false,
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const login = async (formData) => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      api.get('/api/auth/me')
+        .then(response => setUser(response.data))
+        .catch(() => {
+          localStorage.removeItem('token');
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const login = async (credentials) => {
     try {
-      const res = await axios.post('/api/auth/login', formData);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: res.data.token });
-      localStorage.setItem('token', res.data.token);
+      setError(null);
+      const response = await api.post('/api/auth/login', credentials);
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      const userResponse = await api.get('/api/auth/me');
+      setUser(userResponse.data);
+      return { success: true };
     } catch (err) {
-      console.error(err);
+      setError(err.response?.data?.message || 'Login failed');
+      return { success: false, error: err.response?.data?.message };
     }
   };
 
-  const register = async (formData) => {
+  const register = async (userData) => {
     try {
-      await axios.post('/api/auth/register', formData);
-      login({ email: formData.email, password: formData.password });
+      setError(null);
+      await api.post('/api/auth/register', userData);
+      return await login({ email: userData.email, password: userData.password });
     } catch (err) {
-      console.error(err);
+      setError(err.response?.data?.message || 'Registration failed');
+      return { success: false, error: err.response?.data?.message };
     }
   };
 
   const logout = () => {
-    dispatch({ type: 'LOGOUT' });
     localStorage.removeItem('token');
+    setUser(null);
+  };
+
+  const value = {
+    user,
+    login,
+    register,
+    logout,
+    loading,
+    error,
+    isAuthenticated: !!user,
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
