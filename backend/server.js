@@ -17,10 +17,6 @@ const authRoutes = require('./routes/authRoutes');
 const offerRoutes = require('./routes/offerRoutes');
 const userRoutes = require('./routes/userRoutes');
 
-// Importer les middlewares
-const errorHandler = require('./middleware/errorHandler');
-const { notFound } = require('./middleware/errorHandler');
-
 // Créer l'application Express
 const app = express();
 const server = http.createServer(app);
@@ -84,11 +80,43 @@ app.get('/', (req, res) => {
   });
 });
 
-// Gérer les erreurs 404
-app.use(notFound);
+// Middleware pour gérer les 404
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} non trouvée`
+  });
+});
 
-// Gérer les erreurs
-app.use(errorHandler);
+// Middleware pour gérer les erreurs
+app.use((err, req, res, next) => {
+  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let message = err.message;
+
+  // Erreur Mongoose mauvais ObjectId
+  if (err.name === 'CastError' && err.kind === 'ObjectId') {
+    message = 'Resource not found';
+    statusCode = 404;
+  }
+
+  // Erreur Mongoose duplicate key
+  if (err.code === 11000) {
+    message = 'Duplicate field value entered';
+    statusCode = 400;
+  }
+
+  // Erreur Mongoose validation error
+  if (err.name === 'ValidationError') {
+    message = Object.values(err.errors).map(val => val.message);
+    statusCode = 400;
+  }
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
+});
 
 // Configuration Socket.io simplifiée
 io.on('connection', (socket) => {
