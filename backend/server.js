@@ -21,8 +21,6 @@ const exchangeRoutes = require('./routes/exchangeRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
 
 // Importer les middlewares
 const errorHandler = require('./middleware/errorHandler');
