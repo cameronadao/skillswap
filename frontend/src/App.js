@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+// frontend/src/App.js
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
-import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Layout/Navbar';
 import Sidebar from './components/Layout/Sidebar';
 import Footer from './components/Layout/Footer';
@@ -25,8 +25,6 @@ import PaymentSuccess from './pages/PaymentSuccess';
 import NotFound from './pages/NotFound';
 import Loading from './components/UI/Loading';
 import Alert from './components/UI/Alert';
-import { useAuth } from './context/AuthContext';
-import axios from 'axios';
 import './App.css';
 
 // Créer un thème Material-UI
@@ -88,67 +86,120 @@ const theme = createTheme({
   },
 });
 
-function App() {
+// Composant pour les routes protégées
+const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  useEffect(() => {
-    // Vérifier si l'utilisateur est authentifié au chargement
-    const checkAuth = async () => {
-      try {
-        await axios.get('/api/auth/me');
-      } catch (error) {
-        console.log('Not authenticated');
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  if (loading || isCheckingAuth) {
+  if (loading) {
     return <Loading />;
   }
+
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+// Composant principal de l'application
+function App() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <CustomThemeProvider>
-        <AuthProvider>
-          <SocketProvider>
-            <Router>
-              <div className="app-container">
-                <Navbar />
-                <div className="main-content">
-                  <Sidebar />
-                  <div className="content">
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-                      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
-                      <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-                      <Route path="/offers" element={<OffersList />} />
-                      <Route path="/offers/:id" element={<OfferDetails />} />
-                      <Route path="/create-offer" element={isAuthenticated ? <CreateOffer /> : <Navigate to="/login" />} />
-                      <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
-                      <Route path="/edit-profile" element={isAuthenticated ? <EditProfile /> : <Navigate to="/login" />} />
-                      <Route path="/exchanges" element={isAuthenticated ? <ExchangeList /> : <Navigate to="/login" />} />
-                      <Route path="/exchanges/:id" element={isAuthenticated ? <ExchangeDetails /> : <Navigate to="/login" />} />
-                      <Route path="/chat/:exchangeId" element={isAuthenticated ? <Chat /> : <Navigate to="/login" />} />
-                      <Route path="/payment/:exchangeId" element={isAuthenticated ? <Payment /> : <Navigate to="/login" />} />
-                      <Route path="/payment/success" element={isAuthenticated ? <PaymentSuccess /> : <Navigate to="/login" />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </div>
+      <AuthProvider>
+        <SocketProvider>
+          <Router>
+            <div className="app-container">
+              <Navbar onMenuClick={toggleSidebar} />
+              <div className="main-content">
+                {!isMobile && <Sidebar />}
+                <div className="content">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/offers" element={<OffersList />} />
+                    <Route path="/offers/:id" element={<OfferDetails />} />
+                    
+                    <Route path="/create-offer" element={
+                      <ProtectedRoute>
+                        <CreateOffer />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/edit-profile" element={
+                      <ProtectedRoute>
+                        <EditProfile />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/exchanges" element={
+                      <ProtectedRoute>
+                        <ExchangeList />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/exchanges/:id" element={
+                      <ProtectedRoute>
+                        <ExchangeDetails />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/chat/:exchangeId" element={
+                      <ProtectedRoute>
+                        <Chat />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/payment/:exchangeId" element={
+                      <ProtectedRoute>
+                        <Payment />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/payment/success" element={
+                      <ProtectedRoute>
+                        <PaymentSuccess />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
                 </div>
-                <Footer />
               </div>
-              <Alert />
-            </Router>
-          </SocketProvider>
-        </AuthProvider>
-      </CustomThemeProvider>
+              <Footer />
+            </div>
+            <Alert />
+          </Router>
+        </SocketProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
