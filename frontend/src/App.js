@@ -1,10 +1,11 @@
 // frontend/src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Layout/Navbar';
 import Sidebar from './components/Layout/Sidebar';
 import Footer from './components/Layout/Footer';
@@ -85,17 +86,6 @@ const theme = createTheme({
     },
   },
 });
-
-// Composant pour les routes protégées
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth(); // Ajout de l'import ici
-
-  if (loading) {
-    return <Loading />;
-  }
-
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
 
 // Composant principal de l'application
 function App() {
