@@ -88,7 +88,7 @@ const theme = createTheme({
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth(); // Ajout de l'import ici
 
   if (loading) {
     return <Loading />;
