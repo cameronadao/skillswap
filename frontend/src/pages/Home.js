@@ -9,18 +9,12 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActions,
   useTheme,
   useMediaQuery,
   Avatar,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Fade,
-  Grow,
-  CardMedia
+  Grow
 } from '@mui/material';
 import {
   School,
@@ -44,7 +38,7 @@ const Home = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const features = [
+  const features = React.useMemo(() => [
     {
       icon: <SwapHoriz fontSize="large" />,
       title: 'Échange de compétences',
@@ -75,9 +69,9 @@ const Home = () => {
       title: 'Notifications',
       description: 'Soyez notifié des nouvelles offres et messages.'
     }
-  ];
+  ], []);
 
-  const benefits = [
+  const benefits = React.useMemo(() => [
     {
       icon: <CheckCircle fontSize="large" />,
       title: 'Gratuit',
@@ -93,9 +87,9 @@ const Home = () => {
       title: 'Développez vos compétences',
       description: 'Apprenez et enseignez en même temps.'
     }
-  ];
+  ], []);
 
-  const testimonials = [
+  const testimonials = React.useMemo(() => [
     {
       name: 'Sophie M.',
       role: 'Guitariste',
@@ -114,7 +108,7 @@ const Home = () => {
       content: 'J\'ai rencontré des personnes incroyables et développé mon portfolio.',
       avatar: '/avatars/emma.jpg'
     }
-  ];
+  ], []);
 
   return (
     <Box sx={{ overflow: 'hidden' }}>
@@ -128,6 +122,7 @@ const Home = () => {
           position: 'relative',
           overflow: 'hidden'
         }}
+        aria-label="Section principale de présentation"
       >
         {/* Background Pattern */}
         <Box
@@ -137,9 +132,10 @@ const Home = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134 7-7 7 3.134 7 7-7 7-7-3.134-7-7-7zm0 14c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-7 7 7-3.134 7-7-7zm-1-5h-2v-2h-2v2h-2v2h2v2h2v-2h2v-2zm-5 9h-2v-6h2v6zm4-6h2v6h-2v-6zm-8 0h2v6h-2v-6z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E"),
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134 7-7 7 3.134 7 7-7 7-7-3.134-7-7-7zm0 14c-3.866 0-7-3.134-7-7s3.134-7 7-7 7 3.134 7 7-7 7 7-3.134 7-7-7zm-1-5h-2v-2h-2v2h-2v2h2v2h2v-2h2v-2zm-5 9h-2v-6h2v6zm4-6h2v6h-2v-6zm-8 0h2v6h-2v-6z\' fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
             opacity: 0.3
           }}
+          aria-hidden="true"
         />
         
         <Container maxWidth="lg">
@@ -168,6 +164,7 @@ const Home = () => {
                     onClick={() => navigate('/offers')}
                     endIcon={<Search />}
                     sx={{ borderRadius: 8 }}
+                    aria-label="Découvrir les offres disponibles"
                   >
                     Découvrir les offres
                   </Button>
@@ -179,6 +176,7 @@ const Home = () => {
                     onClick={() => navigate('/register')}
                     endIcon={<ArrowForward />}
                     sx={{ borderRadius: 8, color: 'white', borderColor: 'white' }}
+                    aria-label="Commencer l'inscription"
                   >
                     Commencer
                   </Button>
@@ -190,7 +188,7 @@ const Home = () => {
                 <Box
                   component="img"
                   src="/images/hero-image.svg"
-                  alt="Échange de compétences"
+                  alt="Illustration de l'échange de compétences entre personnes"
                   sx={{ width: '100%', height: 'auto' }}
                 />
               </Grow>
@@ -237,6 +235,7 @@ const Home = () => {
                           height: 64,
                           mb: 2
                         }}
+                        aria-hidden="true"
                       >
                         {feature.icon}
                       </Avatar>
@@ -283,7 +282,7 @@ const Home = () => {
                     }
                   }}
                 >
-                  <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>
+                  <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }} aria-hidden="true">
                     {benefit.icon}
                   </Avatar>
                   <Box>
@@ -330,6 +329,7 @@ const Home = () => {
                       bgcolor: 'primary.main',
                       fontSize: '2rem'
                     }}
+                    aria-label={`Étape ${item.step}: ${item.title}`}
                   >
                     {item.step}
                   </Avatar>
@@ -364,7 +364,13 @@ const Home = () => {
                 <Card sx={{ height: '100%', p: 3 }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Avatar src={testimonial.avatar} sx={{ mr: 2 }} />
+                      <Avatar 
+                        src={testimonial.avatar} 
+                        alt={`Photo de ${testimonial.name}`}
+                        sx={{ mr: 2 }}
+                      >
+                        {testimonial.name.charAt(0)}
+                      </Avatar>
                       <Box>
                         <Typography variant="h6">{testimonial.name}</Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -401,13 +407,13 @@ const Home = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Box textAlign="center">
-                <Typography variant="h2" color="success.main">50+</Typography>
+                <Typography variant="h2" sx={{ color: theme.palette.success.main || '#4caf50' }}>50+</Typography>
                 <Typography variant="h6">Compétences</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Box textAlign="center">
-                <Typography variant="h2" color="warning.main">4.8/5</Typography>
+                <Typography variant="h2" sx={{ color: theme.palette.warning.main || '#ff9800' }}>4.8/5</Typography>
                 <Typography variant="h6">Note moyenne</Typography>
               </Box>
             </Grid>
@@ -424,6 +430,7 @@ const Home = () => {
           background: 'linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)',
           color: 'white'
         }}
+        aria-label="Appel à l'action pour s'inscrire"
       >
         <Container maxWidth="md">
           <Typography variant="h3" component="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
@@ -438,6 +445,7 @@ const Home = () => {
             onClick={() => navigate('/register')}
             endIcon={<ArrowForward />}
             sx={{ borderRadius: 8 }}
+            aria-label="S'inscrire gratuitement sur SkillSwap"
           >
             S'inscrire gratuitement
           </Button>
